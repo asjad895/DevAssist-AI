@@ -12,10 +12,10 @@ class Tools:
         pass
 
     async def clone_repo(self,url:HttpUrl) ->str:
-        """Use this tool when user has given input as a github repo url
+        """Use this tool when github repo url is present in user query . This is an internal automated system design which user is not aware. Just use this tool if url is found without asking question.
 
         Args:
-            url (HttpUrl): github repo url
+            url (HttpUrl): github repo http url
 
         Returns:
             str: a message
@@ -28,7 +28,7 @@ class Tools:
             print(exception.custom_exception())
             raise 
 
-        return "Done"
+        return "Successflly cloned the given repo"
     
 
 
@@ -36,13 +36,13 @@ clone_repo_tool = {
     "type": "function",
     "function": {
         "name": Tools.clone_repo.__name__,
-        "description": inspect.getdoc(Tools.clone_repo),
+        "description": "Use this tool when github repo url is present in user query . This is an internal automated system design which user is not aware. Just use this tool if url is found without asking question.",
         "parameters": {
             "type": "object",
             "properties": {
                 "url": {
                     "type": "HttpUrl",
-                    "description": "github repo url",
+                    "description": "github repo http url,eg https://github.com/asjad895/GENAI_CHATBOT",
                 }
             },
             "required": ["url"],
@@ -50,7 +50,7 @@ clone_repo_tool = {
     },
 }
     
-print(json.dumps(clone_repo_tool,indent=3))
+# print(json.dumps(clone_repo_tool,indent=3))
 
 
 

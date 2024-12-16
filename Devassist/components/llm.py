@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 from groq import AsyncGroq
-from typing import List, Dict, Union, AsyncGenerator
+from typing import Any, List, Dict, Union, AsyncGenerator
 from Devassist.config import gen_responseconfig
 from Devassist.customexception import exception
 
@@ -31,7 +31,7 @@ class LLM:
         chat_history: List[Dict[str, str]], 
         system_message: str,
         tools : List =[]
-        ) -> Dict:
+        ) -> Union[Any,Any]:
         try:
             if not isinstance(query, str) or not isinstance(chat_history, List) or not isinstance(system_message, str):
                 return {'error': "Invalid Input"}
@@ -49,7 +49,6 @@ class LLM:
                     tools=tools,
                     tool_choice= 'auto'
                 )
-                print(tools)
             else:
                 chat_completion = await self.client.chat.completions.create(
                     messages=messages,  # type: ignore
@@ -62,7 +61,7 @@ class LLM:
             
             print(chat_completion.choices[0].message)
 
-            return chat_completion.choices[0].message.to_dict()
+            return chat_completion.choices[0].message
 
         except Exception:
             print(exception.custom_exception())
@@ -91,7 +90,7 @@ class LLM:
             )
             for chunk in chat_completion:
                 print(chunk.choices[0].delta.content, end="")
-                yield chunk.choices[0].delta.to_dict()
+                yield chunk.choices[0].delta
 
         except Exception:
             print(exception.custom_exception())
