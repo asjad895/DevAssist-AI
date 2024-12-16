@@ -1,0 +1,1 @@
+db_path = "/workspaces/DevAssist-AI/sessions.db"

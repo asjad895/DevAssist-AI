@@ -1,10 +1,12 @@
 from Devassist.components.tools import Tools, clone_repo_tool
 from typing import List, Dict, Union
 from Devassist.components import llm
-import json
+import json,os
 from Devassist.config import models
 from Devassist.customexception import exception
+from database import ChatHistoryManager
 
+database = ChatHistoryManager(os.getenv("DB_PATH", "chat_sessions.db"))
 
 class Agents:
     def __init__(self, key: str) -> None:
@@ -13,7 +15,13 @@ class Agents:
         self.tools_object = Tools()
         self.available_functions = {"clone_repo": self.tools_object.clone_repo}
 
-    async def query_routing(self, query: str, chat_history: List, prompt: str) -> Union[str, Dict]:
+    async def query_routing(
+            self, 
+            query: str, 
+            chat_history: List, 
+            prompt: str,
+            session_id :str,
+            ) -> Union[str, Dict]:
         try:
             # First response to route the query
             response = await self.client.get_non_stream_response(
@@ -28,6 +36,7 @@ class Agents:
             tool_calls = response.tool_calls if hasattr(response, 'tool_calls') else None
             if tool_calls is None:
                 print("No tool calls received.")
+                database.add_message(session_id=session_id,role='assistant',content = response.content)
                 return response.content
 
             # Process tool calls
@@ -47,6 +56,7 @@ class Agents:
                     ],
                 }
             )
+            database.add_message(session_id=session_id,role='assistant',content = response.tool_calls)
 
             # Execute tool functions and append responses to chat history
             for tool_call in tool_calls:
@@ -63,6 +73,7 @@ class Agents:
                         "tool_call_id": tool_call.id,
                     }
                 )
+                database.add_message(session_id=session_id,role='tool',content = json.dumps(function_response))
 
             print(json.dumps(chat_history, indent=2))
 
@@ -75,6 +86,7 @@ class Agents:
                 tools=self.tools,
             )
             print(response.content)
+            database.add_message(session_id=session_id,role='assistant',content = response.content)
 
             return response.content
 
