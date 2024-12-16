@@ -1,11 +1,11 @@
 from pydantic import BaseModel, HttpUrl, ValidationError
 import os
 from git import Repo
-import asyncio
 from Devassist.config import fileconfig
+from Devassist.customexception import exception
 
 class GitHubRepoInput(BaseModel):
-    repo_url: HttpUrl
+    repo_url: HttpUrl = HttpUrl('http://www.example.com')
     destination_path: str = fileconfig.CODEBASE_DIR
 
 
@@ -22,8 +22,9 @@ async def download_github_repo(input_data: GitHubRepoInput):
             print(f"Repository downloaded to: {input_data.destination_path}")
         else:
             print(f"{input_data.destination_path} already exists. ")
-    except Exception as e:
-        print(f"Error downloading repository: {e}")
+    except Exception:
+        print(exception.custom_exception())
+        raise 
 
 # try:
 #     input_data = GitHubRepoInput(
