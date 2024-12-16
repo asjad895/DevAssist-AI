@@ -12,8 +12,7 @@ class Tools:
         pass
 
     async def clone_repo(self,url:HttpUrl) ->str:
-        """Use this tool when github repo url is present in user query . This is an internal automated system design which user is not aware. Just use this tool if url is found without asking question.
-
+        """Use this tool when github repo url is present in user query annd cloned till now in ongoing conversation.
         Args:
             url (HttpUrl): github repo http url
 
@@ -36,7 +35,7 @@ clone_repo_tool = {
     "type": "function",
     "function": {
         "name": Tools.clone_repo.__name__,
-        "description": "Use this tool when github repo url is present in user query . This is an internal automated system design which user is not aware. Just use this tool if url is found without asking question.",
+        "description": "Use this tool when github repo url is present in user query annd cloned till now in ongoing conversation.",
         "parameters": {
             "type": "object",
             "properties": {

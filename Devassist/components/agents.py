@@ -1,18 +1,19 @@
-from networkx import union
 from Devassist.components.tools import Tools, clone_repo_tool
-from typing import List, Dict,Union
+from typing import List, Dict, Union
 from Devassist.components import llm
-import os, json
+import json
 from Devassist.config import models
 from Devassist.customexception import exception
+
 
 class Agents:
     def __init__(self, key: str) -> None:
         self.tools = [clone_repo_tool]
         self.client = llm.LLM(key=key)
-        self.available_functions = {"clone_repo": Tools.clone_repo}
+        self.tools_object = Tools()
+        self.available_functions = {"clone_repo": self.tools_object.clone_repo}
 
-    async def query_routing(self, query: str, chat_history: List, prompt: str) -> Union[str,Dict]:
+    async def query_routing(self, query: str, chat_history: List, prompt: str) -> Union[str, Dict]:
         try:
             # First response to route the query
             response = await self.client.get_non_stream_response(
@@ -23,8 +24,13 @@ class Agents:
                 tools=self.tools,
             )
 
+            
+            tool_calls = response.tool_calls if hasattr(response, 'tool_calls') else None
+            if tool_calls is None:
+                print("No tool calls received.")
+                return response.content
+
             # Process tool calls
-            tool_calls = response.tool_calls
             chat_history.append(
                 {
                     "role": "assistant",
