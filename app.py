@@ -1,16 +1,15 @@
-from ssl import SSL_ERROR_SSL
-from fastapi import FastAPI
-from fastapi.requests import Request
-from fastapi.responses import JSONResponse 
-from Devassist.components import Loadfiles,llm
-from dotenv import load_dotenv
+
+from fastapi import FastAPI,Request
+from fastapi.responses import HTMLResponse,JSONResponse
+from Devassist.components import llm
 import json
 import os
-from chat_session import ChatManager
 import prompts
 from Devassist.components.agents import Agents
+from Devassist.customexception import exception
 from  Devassist.config import models
 import database
+from dotenv import load_dotenv
 
 load_dotenv('/workspaces/DevAssist-AI/.env')
 # 
@@ -25,6 +24,8 @@ key = os.getenv('LLM_API_KEY','')
 client = llm.LLM(key = key,model = 'mixtral-8x7b-32768')
 
 dev_agents = Agents(key = key)
+
+
 
 @app.post('/chat/')
 async def chat(request:Request)->JSONResponse:
@@ -45,8 +46,19 @@ async def chat(request:Request)->JSONResponse:
         return JSONResponse({'status':'success','response':response})
     
     except Exception as e:
-        print(f'Error at json parsing \n{e}')
+        print(exception.custom_exception())
         return JSONResponse(status_code=400,content={'error':'Bad request','detail':str(e)})
+
+
+
+@app.get("/")
+async def homepage(request: Request) -> HTMLResponse:
+    try:
+        return templates.TemplateResponse(name='index',context={"request": request})
+    except Exception as e:
+        print(exception.custom_exception())
+        return HTMLResponse(content="<h1>Internal Server Error</h1>", status_code=500)
+
 
 session_manager.batch_expire_sessions()
 
