@@ -185,7 +185,7 @@ if __name__ == "__main__":
     session_manager = SessionManager()
     chat_manager = ChatHistoryManager()
 
-    session_id = session_manager.create_session(user_id="user123")
+    session_id = session_manager.create_session(session_id="user123")
     print(f"Session Created: {session_id}")
 
 
@@ -204,3 +204,5 @@ if __name__ == "__main__":
         print(e)
 
     session_manager.batch_expire_sessions()
+
+
