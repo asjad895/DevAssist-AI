@@ -56,7 +56,7 @@ class Agents:
                     ],
                 }
             )
-            database.add_message(session_id=session_id,role='assistant',content = response.tool_calls)
+            database.add_message(session_id=session_id,role='assistant',content = str(response.tool_calls))
 
             # Execute tool functions and append responses to chat history
             for tool_call in tool_calls:

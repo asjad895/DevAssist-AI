@@ -62,7 +62,7 @@ class SessionManager:
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
 
-    def create_session(self, user_id=None, duration_hours=1):
+    def create_session(self, user_id=None, duration_hours=.2):
         """Create a new session with a UUID and expiration time."""
         session_id = f"{user_id}-{uuid.uuid4()}" if user_id else str(uuid.uuid4())
         created_at = datetime.now()

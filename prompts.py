@@ -10,5 +10,5 @@ Think step by step before answering
 5. Do not answer query which is no related to Software Development and guide user to comback on you domain.
 """
 
-query_routing = """Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.
+query_routing = """You are an automated helpfull assistant.Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous.
 """
