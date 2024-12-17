@@ -62,22 +62,40 @@ class SessionManager:
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
 
-    def create_session(self, user_id=None, duration_hours=.2):
-        """Create a new session with a UUID and expiration time."""
-        session_id = f"{user_id}-{uuid.uuid4()}" if user_id else str(uuid.uuid4())
+    def create_session(self, session_id=None, duration_hours=.2):
+        """Create a new session only if the session_id doesn't already exist in the database."""
+        
+        # If session_id is provided, use it; otherwise, create a new session ID.
+        if not session_id:
+            session_id = str(uuid.uuid4())  # Generate a new session_id if not provided
+
+        # Check if session_id already exists in the database
+        if self.is_session_exists(session_id):
+            print(f"Session ID {session_id} already exists. Returning the existing session ID.")
+            return session_id  
+
         created_at = datetime.now()
         expires_at = created_at + timedelta(hours=duration_hours)
 
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
-        INSERT INTO Sessions (session_id, user_id, created_at, expires_at, status)
-        VALUES (?, ?, ?, ?, 'active')
-        ''', (session_id, user_id, created_at, expires_at))
+        INSERT INTO Sessions (session_id, created_at, expires_at, status)
+        VALUES (?, ?, ?, 'active')
+        ''', (session_id, created_at, expires_at))
         conn.commit()
         conn.close()
 
         return session_id
+
+    def is_session_exists(self, session_id):
+        """Check if a session already exists in the database."""
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT 1 FROM Sessions WHERE session_id = ?', (session_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result is not None
 
     def is_session_active(self, session_id):
         """Check if a session is active or expired."""
