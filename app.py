@@ -9,6 +9,11 @@ from Devassist.components.agents import Agents
 from Devassist.customexception import exception
 from  Devassist.config import models
 import database
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = ["*"] 
+
+
 from dotenv import load_dotenv
 
 load_dotenv('/workspaces/DevAssist-AI/.env')
@@ -22,6 +27,14 @@ print(f"Session Created: {session_id}")
 app = FastAPI()
 key = os.getenv('LLM_API_KEY','')
 client = llm.LLM(key = key,model = 'mixtral-8x7b-32768')
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 dev_agents = Agents(key = key)
 
@@ -49,15 +62,6 @@ async def chat(request:Request)->JSONResponse:
         print(exception.custom_exception())
         return JSONResponse(status_code=400,content={'error':'Bad request','detail':str(e)})
 
-
-
-@app.get("/")
-async def homepage(request: Request) -> HTMLResponse:
-    try:
-        return templates.TemplateResponse(name='index',context={"request": request})
-    except Exception as e:
-        print(exception.custom_exception())
-        return HTMLResponse(content="<h1>Internal Server Error</h1>", status_code=500)
 
 
 session_manager.batch_expire_sessions()
