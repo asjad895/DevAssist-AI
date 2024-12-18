@@ -35,6 +35,16 @@ class LLM:
         try:
             if not isinstance(query, str) or not isinstance(chat_history, List) or not isinstance(system_message, str):
                 return {'error': "Invalid Input"}
+            
+            for i,chat in enumerate(chat_history):
+                if 'tool' in chat['role'].split('_'):
+                    chat_history[i] = {
+                        "role": "tool",
+                        "content": chat['content'],
+                        "tool_call_id": chat['role'].split('_')[1],
+                    }
+                    
+
 
             messages = [{'role': 'system', 'content': system_message}] + chat_history + [{'role': 'user', 'content': query}]
 

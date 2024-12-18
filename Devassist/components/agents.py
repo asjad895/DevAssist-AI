@@ -74,7 +74,21 @@ class Agents:
                         "tool_call_id": tool_call.id,
                     }
                 )
-                database.add_message(session_id=session_id,role='tool',content = json.dumps(function_response))
+
+                if function_name == 'clone_repo' and 'success' in function_response:
+                    # preprocess
+                    all_files = await self.tools_object.extract_codebase_files()
+
+                    function_response = """We have done This \n 
+                    1. cloned given repo
+                    2. Extracted all the required files for knowledgebase
+                    3. Commented codes of each function .
+                    4. Summarized each module and methods.
+                    5. Summarized techstack,framework used.
+                    6. summarized overall project functionality.
+                    7. Created a chunks of all knowledgebase.
+                    8. created graphstore and vector store of knowledgebase."""
+                database.add_message(session_id=session_id,role=f'tool_{tool_call.id}',content = json.dumps(function_response))
 
             print(json.dumps(chat_history, indent=2))
 
