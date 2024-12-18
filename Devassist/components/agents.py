@@ -1,10 +1,15 @@
+from sympy import EX
 from Devassist.components.tools import Tools, clone_repo_tool
 from typing import List, Dict, Union
 from Devassist.components import llm
 import json,os
-from Devassist.config import models
+from Devassist.config import fileconfig, models
 from Devassist.customexception import exception
+import Devassist.components.utils as utils
 from database import ChatHistoryManager
+import prompts
+
+knowledge_base_dir = 'knowledgebase/'
 
 database = ChatHistoryManager(os.getenv("DB_PATH", "chat_sessions.db"))
 
@@ -74,10 +79,24 @@ class Agents:
                     raise ValueError(f"Function '{function_name}' is not available.")
                 function_args = json.loads(tool_call.function.arguments)
                 function_response = await function_to_call(**function_args)
+                
 
+                # node2
                 if function_name == 'clone_repo' and 'sucess' in function_response:
                     # preprocess
                     all_files = await self.tools_object.extract_codebase_files()
+
+                    for file in all_files : # type: ignore
+                        try:
+                            a = file.split('/')[-1].split('.')
+                            print("read",)
+                            if file.split('/')[-1].split('.')[1] in fileconfig.extensions:
+                                print("yes yes")
+                                codes = utils.read_file_content(file)
+                                print(codes)
+                                comments = await self.agent_commentor(prompt=prompts.prompt_Commentor,codes=codes)
+                        except Exception as e:
+                            print(e)
 
                     function_response = """We have done This \n 
                     1. cloned given repo
@@ -117,3 +136,19 @@ class Agents:
             error_details = exception.custom_exception() 
             print(f"Error: {error_details}")
             return {"error": str(e)}
+        
+    
+
+    async def agent_commentor(self, prompt: str, codes: str) -> str:
+        """
+        Async function to get comments for the provided code using the tools object.
+        """
+        try:
+            comments = await self.tools_object.get_comments(prompt=prompt, client=self.client, codes=codes)
+            return comments
+        except Exception as e:
+           print(exception.custom_exception())
+           return f"Error: {str(e)}"
+
+
+

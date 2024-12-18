@@ -16,3 +16,14 @@ async def traverse_directory(current_dir, visited_dirs,list_contents):
                 await traverse_directory(item_path, visited_dirs,list_contents)
     return list_contents
 
+def read_file_content(file_path: str) -> str:
+    """
+    Reads the content of a file and returns it as a string.
+    """
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read()
+        return content
+    except Exception as e:
+        print(f"Error reading file {file_path}: {e}")
+        return ""

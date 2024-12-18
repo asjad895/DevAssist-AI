@@ -1,4 +1,5 @@
 from ast import Dict, List
+import code
 import json
 from typing import Any
 from pydantic import BaseModel,HttpUrl
@@ -9,11 +10,8 @@ from Devassist.customexception import exception
 from Devassist.components import Loadfiles
 import Devassist.components.utils as utils
 from Devassist.config import fileconfig
+from Devassist.config import models
 
-# backend_dir='/content/codebase/Backend/'
-# v={}
-# l=[]
-# r=traverse_directory(backend_dir,v,l)
 
 class Tools:
     def __init__(self) -> None:
@@ -62,6 +60,21 @@ class Tools:
             raise
 
 
+    async def get_comments(self,codes : str,prompt : str,client :object) ->str:
+        """
+        """
+        response = await client.get_non_stream_response( # type: ignore
+            model=models.GENERAL_MODEL,
+            query=None,
+            chat_history = [],
+            system_message=prompt.format(codes = codes),
+        )
+        print("\n\n--------comment--------------------------------\n")
+        print(response.content)
+
+        return response.content
+
+ 
 
 clone_repo_tool = {
     "type": "function",
