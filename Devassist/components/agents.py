@@ -95,6 +95,8 @@ class Agents:
                                 codes = utils.read_file_content(file)
                                 print(codes)
                                 comments = await self.agent_commentor(prompt=prompts.prompt_Commentor,codes=codes)
+                                await utils.save_content_to_file(file_path=file,new_dir=knowledge_base_dir,content=comments)
+
                         except Exception as e:
                             print(e)
 

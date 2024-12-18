@@ -26,11 +26,13 @@ class LLM:
 
     async def get_non_stream_response(
         self, 
-        model: str,
+        model: str ,
         query: Union[str,None], 
         chat_history: List[Dict[str, str]], 
         system_message: str,
         tools : List|None =None,
+        max_token:int = gen_responseconfig.max_tokens,
+        temperature:float = gen_responseconfig.temperature,
         ) -> Union[Any,Any]:
         try:
             if not isinstance(chat_history, List) or not isinstance(system_message, str):
@@ -55,9 +57,9 @@ class LLM:
             chat_completion = await self.client.chat.completions.create(
                 messages=messages,  # type: ignore
                 model=model,
-                temperature=gen_responseconfig.temperature,
+                temperature=temperature,
                 top_p=gen_responseconfig.top_p,
-                max_tokens=gen_responseconfig.max_tokens,
+                max_tokens=max_token,
                 tools=tools,
                 tool_choice= 'auto'
             )

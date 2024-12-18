@@ -27,3 +27,21 @@ def read_file_content(file_path: str) -> str:
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")
         return ""
+
+
+
+async def save_content_to_file(file_path: str, new_dir: str, content: str):
+    """
+    """
+    new_file_path = os.path.join(new_dir, file_path)
+    try:
+        os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
+        if os.path.exists(new_file_path):
+            os.remove(new_file_path)
+        with open(new_file_path, 'w') as file:
+            file.write(content)
+        print(f"Content successfully saved to: {new_file_path}")
+
+    except Exception as e:
+        print(f"Error saving content to {new_file_path}: {e}")
+

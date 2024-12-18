@@ -9,7 +9,7 @@ from torch import clone
 from Devassist.customexception import exception
 from Devassist.components import Loadfiles
 import Devassist.components.utils as utils
-from Devassist.config import fileconfig
+from Devassist.config import fileconfig,gen_responseconfig
 from Devassist.config import models
 
 
@@ -67,6 +67,7 @@ class Tools:
             model=models.GENERAL_MODEL,
             query=None,
             chat_history = [],
+            max_token = gen_responseconfig.comment_max_tokens,
             system_message=prompt.format(codes = codes),
         )
         print("\n\n--------comment--------------------------------\n")
