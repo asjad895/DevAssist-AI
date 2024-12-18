@@ -62,7 +62,7 @@ class SessionManager:
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
 
-    def create_session(self, session_id=None, duration_hours=.2):
+    def create_session(self, session_id=None, duration_hours=.3):
         """Create a new session only if the session_id doesn't already exist in the database."""
         
         # If session_id is provided, use it; otherwise, create a new session ID.

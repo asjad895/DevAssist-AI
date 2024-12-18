@@ -41,6 +41,13 @@ class Agents:
                 return response.content
 
             # Process tool calls
+            database.add_message(session_id=session_id,role='user',content=query)
+            chat_history.append(
+                {
+                    'role':'user',
+                    'content':query
+                }
+            )
             chat_history.append(
                 {
                     "role": "assistant",
@@ -67,15 +74,8 @@ class Agents:
                     raise ValueError(f"Function '{function_name}' is not available.")
                 function_args = json.loads(tool_call.function.arguments)
                 function_response = await function_to_call(**function_args)
-                chat_history.append(
-                    {
-                        "role": "tool",
-                        "content": json.dumps(function_response),
-                        "tool_call_id": tool_call.id,
-                    }
-                )
 
-                if function_name == 'clone_repo' and 'success' in function_response:
+                if function_name == 'clone_repo' and 'sucess' in function_response:
                     # preprocess
                     all_files = await self.tools_object.extract_codebase_files()
 
@@ -88,19 +88,27 @@ class Agents:
                     6. summarized overall project functionality.
                     7. Created a chunks of all knowledgebase.
                     8. created graphstore and vector store of knowledgebase."""
-                database.add_message(session_id=session_id,role=f'tool_{tool_call.id}',content = json.dumps(function_response))
+                    chat_history.append(
+                        {
+                            "role": "tool",
+                            "content": json.dumps(function_response),
+                            "tool_call_id": tool_call.id,
+                        }
+                    )
+
+                    database.add_message(session_id=session_id,role=f'tool__id__{tool_call.id}',content = json.dumps(function_response))
 
             print(json.dumps(chat_history, indent=2))
 
             # Final response after tool execution
             response = await self.client.get_non_stream_response(
                 model=models.TOOL_USE_MODEL,
-                query=query,
+                query=None,
                 chat_history=chat_history,
                 system_message=prompt,
-                tools=self.tools,
+                tools=None
             )
-            print(response.content)
+            print(response)
             database.add_message(session_id=session_id,role='assistant',content = response.content)
 
             return response.content

@@ -27,27 +27,29 @@ class LLM:
     async def get_non_stream_response(
         self, 
         model: str,
-        query: str, 
+        query: Union[str,None], 
         chat_history: List[Dict[str, str]], 
         system_message: str,
         tools : List|None =None,
         ) -> Union[Any,Any]:
         try:
-            if not isinstance(query, str) or not isinstance(chat_history, List) or not isinstance(system_message, str):
+            if not isinstance(chat_history, List) or not isinstance(system_message, str):
                 return {'error': "Invalid Input"}
-            
+            print(chat_history)
             for i,chat in enumerate(chat_history):
-                if 'tool' in chat['role'].split('_'):
+                print(chat['role'].split('__id__'))
+                if 'tool__id__' in chat['role']:
                     chat_history[i] = {
                         "role": "tool",
                         "content": chat['content'],
-                        "tool_call_id": chat['role'].split('_')[1],
+                        "tool_call_id": chat['role'].split('__id__')[1],
                     }
                     
 
 
-            messages = [{'role': 'system', 'content': system_message}] + chat_history + [{'role': 'user', 'content': query}]
-
+            messages = [{'role': 'system', 'content': system_message}] + chat_history 
+            if query:
+                messages += [{'role': 'user', 'content': query}]
 
             # print(messages)
             chat_completion = await self.client.chat.completions.create(
@@ -61,7 +63,7 @@ class LLM:
             )
             
             
-            print(chat_completion.choices[0].message)
+            print(chat_completion)
 
             return chat_completion.choices[0].message
 
