@@ -36,6 +36,7 @@ class Agents:
             tool_calls = response.tool_calls if hasattr(response, 'tool_calls') else None
             if tool_calls is None:
                 print("No tool calls received.")
+                database.add_message(session_id=session_id,role='user',content=query)
                 database.add_message(session_id=session_id,role='assistant',content = response.content)
                 return response.content
 

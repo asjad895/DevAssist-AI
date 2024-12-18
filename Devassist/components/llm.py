@@ -30,7 +30,7 @@ class LLM:
         query: str, 
         chat_history: List[Dict[str, str]], 
         system_message: str,
-        tools : List =[]
+        tools : List|None =None,
         ) -> Union[Any,Any]:
         try:
             if not isinstance(query, str) or not isinstance(chat_history, List) or not isinstance(system_message, str):
@@ -39,24 +39,16 @@ class LLM:
             messages = [{'role': 'system', 'content': system_message}] + chat_history + [{'role': 'user', 'content': query}]
 
 
-            if len(tools)>0:
-                chat_completion = await self.client.chat.completions.create(
-                    messages=messages,  # type: ignore
-                    model=model,
-                    temperature=gen_responseconfig.temperature,
-                    top_p=gen_responseconfig.top_p,
-                    max_tokens=gen_responseconfig.max_tokens,
-                    tools=tools,
-                    tool_choice= 'auto'
-                )
-            else:
-                chat_completion = await self.client.chat.completions.create(
-                    messages=messages,  # type: ignore
-                    model=model,
-                    temperature=gen_responseconfig.temperature,
-                    top_p=gen_responseconfig.top_p,
-                    max_tokens=gen_responseconfig.max_tokens,
-                )
+            # print(messages)
+            chat_completion = await self.client.chat.completions.create(
+                messages=messages,  # type: ignore
+                model=model,
+                temperature=gen_responseconfig.temperature,
+                top_p=gen_responseconfig.top_p,
+                max_tokens=gen_responseconfig.max_tokens,
+                tools=tools,
+                tool_choice= 'auto'
+            )
             
             
             print(chat_completion.choices[0].message)

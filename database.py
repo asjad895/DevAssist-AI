@@ -169,7 +169,7 @@ class ChatHistoryManager:
         cursor.execute('SELECT role, content, timestamp FROM Session_Data WHERE session_id = ?', (session_id,))
         rows = cursor.fetchall()
         conn.close()
-
+        print(rows)
         history = []
         for role, content, timestamp in rows:
             history.append({

@@ -16,7 +16,7 @@ origins = ["*"]
 
 from dotenv import load_dotenv
 
-load_dotenv('/workspaces/DevAssist-AI/.env')
+load_dotenv()
 # 
 database.initialize_db()
 session_manager = database.SessionManager()
@@ -46,9 +46,8 @@ async def chat(request:Request)->JSONResponse:
         query = input_data.get('query')
 
         session_id = session_manager.create_session(session_id=input_data.get('session_id','session_id'))
-        chat_manager.add_message(session_id=session_id,role='user',content=query)
         chat_history = chat_manager.get_chat_history(session_id=session_id)
-        print("chat\n",chat_manager.get_chat_history(session_id=session_id))
+        # print("chat\n",chat_history)
 
         response = await dev_agents.query_routing(
             session_id=session_id,
@@ -56,11 +55,13 @@ async def chat(request:Request)->JSONResponse:
             chat_history=chat_history,
             prompt=prompts.query_routing
             )
-        return JSONResponse({'status':'success','response':response})
+        if isinstance(response,dict) and 'error' in response:
+            return JSONResponse({'response':"An Internal error occured at server"})
+        return JSONResponse({'response':response})
     
     except Exception as e:
         print(exception.custom_exception())
-        return JSONResponse(status_code=400,content={'error':'Bad request','detail':str(e)})
+        return JSONResponse(status_code=400,content={'response':'Bad request','detail':str(e)})
 
 
 

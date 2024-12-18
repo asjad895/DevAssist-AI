@@ -1,5 +1,4 @@
 import json
-from sys import exception
 from pydantic import BaseModel,HttpUrl
 import inspect
 
